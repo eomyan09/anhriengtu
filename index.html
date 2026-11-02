@@ -25,92 +25,101 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Nút Cài đặt tròn (Top: 15px) */
-        .settings-toggle-btn {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #cbd5e1;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 1000;
-            backdrop-filter: blur(8px);
-        }
-
-        .settings-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            transform: scale(1.05);
-        }
-
-        /* Modal Cài đặt */
-        .modal-overlay {
+        /* Khung màn hình khóa mật khẩu */
+        #lockScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            z-index: 1001;
+            background: #0b0f19;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .lock-box {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .lock-box h2 { margin-bottom: 15px; font-size: 1.5rem; }
+        
+        .lock-input {
+            width: 100%; padding: 12px 15px; margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px; color: #ffffff; font-size: 1rem;
+            box-sizing: border-box; outline: none; text-align: center;
+        }
+
+        .lock-btn {
+            background: linear-gradient(135deg, #6366f1, #a855f7); color: white;
+            border: none; padding: 12px 20px; border-radius: 25px;
+            cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem;
+        }
+
+        .error-msg { color: #e11d48; font-size: 0.85rem; margin-top: 10px; display: none; }
+
+        /* Giao diện chính (ẩn mặc định cho đến khi nhập đúng pass) */
+        #mainContent {
             display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .settings-toggle-btn {
+            position: fixed; top: 15px; left: 15px; width: 38px; height: 38px;
+            border-radius: 50%; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25); color: #cbd5e1;
+            font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 1000; backdrop-filter: blur(8px);
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            z-index: 1001; display: none;
         }
 
         .custom-modal {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(17, 24, 39, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 25px;
-            width: 90%;
-            max-width: 420px;
-            z-index: 1002;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-            box-sizing: border-box;
-            display: none;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px;
+            padding: 25px; width: 90%; max-width: 420px; z-index: 1002; display: none;
         }
 
         .modal-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
+            margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;
         }
         .modal-header h3 { margin: 0; font-size: 1.2rem; }
         .close-modal-btn { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
-        .close-modal-btn:hover { color: #fff; }
 
         .settings-section { margin-bottom: 20px; }
         .settings-section h4 { font-size: 0.95rem; color: #94a3b8; margin-bottom: 10px; }
-        
         .sub-upload-btn {
             display: block; background: rgba(255, 255, 255, 0.08); border: 1px dashed rgba(255, 255, 255, 0.3);
             padding: 10px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 0.9rem; margin-bottom: 10px;
         }
-        .sub-upload-btn:hover { background: rgba(255, 255, 255, 0.15); }
-
         .bg-thumbnails { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 10px; }
         .bg-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 2px solid transparent; cursor: pointer; flex-shrink: 0; }
         .bg-thumb.active { border-color: #6366f1; }
-        
         .reset-bg-btn { background: transparent; color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; width: 100%; }
-        
         .theme-options { display: flex; gap: 10px; }
         .theme-btn { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
         .theme-btn.active { background: linear-gradient(135deg, #6366f1, #a855f7); border-color: transparent; }
 
-        /* Giao diện chính */
         .header { text-align: center; margin-top: 50px; margin-bottom: 20px; }
         .header h1 { font-size: 2rem; margin-bottom: 5px; }
         .header p { color: #94a3b8; font-size: 0.95rem; }
@@ -145,7 +154,6 @@
         .delete-btn { background-color: #e11d48; color: white; border: none; padding: 6px 12px; font-size: 0.75rem; border-radius: 20px; cursor: pointer; }
         .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 6px 12px; font-size: 0.75rem; border-radius: 20px; }
 
-        /* Light Mode Styling */
         body.light-mode { background-color: #f8fafc; color: #0f172a; }
         body.light-mode .card { background: rgba(255, 255, 255, 0.85); border-color: rgba(0, 0, 0, 0.1); }
         body.light-mode .card h2, body.light-mode .header h1 { color: #0f172a; }
@@ -160,53 +168,96 @@
 </head>
 <body>
 
-    <!-- Nút Cài đặt (Top: 15px) -->
-    <button class="settings-toggle-btn" onclick="toggleModal('settingsModal')">☰</button>
-
-    <!-- Overlay chung -->
-    <div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
-
-    <!-- Modal Cài đặt -->
-    <div id="settingsModal" class="custom-modal">
-        <div class="modal-header">
-            <h3>⚙️ Cài đặt cá nhân</h3>
-            <button class="close-modal-btn" onclick="closeAllModals()">✕</button>
+    <!-- MÀN HÌNH KHÓA MẬT KHẨU -->
+    <div id="lockScreen">
+        <div class="lock-box">
+            <h2>🔒 KHO BẢO MẬT</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">Vui lòng nhập mật khẩu để tiếp tục</p>
+            <input type="password" id="passInput" class="lock-input" placeholder="Nhập mật khẩu...">
+            <button class="lock-btn" onclick="checkPassword()">Mở khóa</button>
+            <div id="errorMsg" class="error-msg">❌ Mật khẩu không chính xác!</div>
         </div>
-        <div class="settings-section">
-            <h4>1. Đổi ảnh nền</h4>
-            <label for="bgFileInput" class="sub-upload-btn">+ Tải ảnh nền từ thư viện</label>
-            <input type="file" id="bgFileInput" accept="image/*" style="display: none;">
-            <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:6px;">Ảnh nền đã lưu:</div>
-            <div id="bgThumbnails" class="bg-thumbnails"></div>
-            <button class="reset-bg-btn" onclick="resetBackground()">Khôi phục nền mặc định</button>
-        </div>
-        <div class="settings-section">
-            <h4>2. Chế độ hiển thị</h4>
-            <div class="theme-options">
-                <button class="theme-btn" onclick="setTheme('light')">☀️ Sáng</button>
-                <button class="theme-btn" onclick="setTheme('dark')">🌙 Tối</button>
-                <button class="theme-btn" onclick="setTheme('system')">💻 Hệ thống</button>
+    </div>
+
+    <!-- NỘI DUNG CHÍNH CỦA TRANG WEB -->
+    <div id="mainContent">
+        <button class="settings-toggle-btn" onclick="toggleModal('settingsModal')">☰</button>
+
+        <div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
+
+        <div id="settingsModal" class="custom-modal">
+            <div class="modal-header">
+                <h3>⚙️ Cài đặt cá nhân</h3>
+                <button class="close-modal-btn" onclick="closeAllModals()">✕</button>
+            </div>
+            <div class="settings-section">
+                <h4>1. Đổi ảnh nền</h4>
+                <label for="bgFileInput" class="sub-upload-btn">+ Tải ảnh nền từ thư viện</label>
+                <input type="file" id="bgFileInput" accept="image/*" style="display: none;">
+                <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:6px;">Ảnh nền đã lưu:</div>
+                <div id="bgThumbnails" class="bg-thumbnails"></div>
+                <button class="reset-bg-btn" onclick="resetBackground()">Khôi phục nền mặc định</button>
+            </div>
+            <div class="settings-section">
+                <h4>2. Chế độ hiển thị</h4>
+                <div class="theme-options">
+                    <button class="theme-btn" onclick="setTheme('light')">☀️ Sáng</button>
+                    <button class="theme-btn" onclick="setTheme('dark')">🌙 Tối</button>
+                    <button class="theme-btn" onclick="setTheme('system')">💻 Hệ thống</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="header">
-        <h1>🌙 THƯ VIỆN 🌙</h1>
-        <p>Những tấm ảnh riêng tư :))</p>
-    </div>
+        <div class="header">
+            <h1>🌙 THƯ VIỆN 🌙</h1>
+            <p>Những tấm ảnh riêng tư :))</p>
+        </div>
 
-    <div class="card">
-        <h2>✨ Thêm kỷ niệm mới ✨</h2>
-        <input type="text" class="input-field" id="memoryName" placeholder="Tên kỷ niệm...">
-        <label for="fileInput" class="upload-btn">+ Chọn ảnh để tải lên</label>
-        <input type="file" id="fileInput" accept="image/*">
-        <button class="manage-btn" onclick="loadGallery(true)">Quản lý ảnh</button>
-    </div>
+        <div class="card">
+            <h2>✨ Thêm kỷ niệm mới ✨</h2>
+            <input type="text" class="input-field" id="memoryName" placeholder="Tên kỷ niệm...">
+            <label for="fileInput" class="upload-btn">+ Chọn ảnh để tải lên</label>
+            <input type="file" id="fileInput" accept="image/*">
+            <button class="manage-btn" onclick="loadGallery(true)">Quản lý ảnh</button>
+        </div>
 
-    <div id="galleryContainer" class="gallery-grid" style="display: none;"></div>
+        <div id="galleryContainer" class="gallery-grid" style="display: none;"></div>
+    </div>
 
     <script>
-        // --- CẤU HÌNH FIREBASE MỚI (ANHRIENGTU) ---
+        // --- ĐẶT MẬT KHẨU CỦA BẠN Ở ĐÂY ---
+        const MY_PASSWORD = "2009"; // Đổi thành mật khẩu bạn muốn
+
+        function checkPassword() {
+            const inputVal = document.getElementById('passInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (inputVal === MY_PASSWORD) {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+                sessionStorage.setItem('isUnlocked', 'true');
+                loadGallery(false);
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        document.getElementById('passInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isUnlocked') === 'true') {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+                const savedBg = localStorage.getItem('selectedBg');
+                if (savedBg) applyBackground(savedBg);
+                setTheme(localStorage.getItem('themeSetting') || 'dark');
+                loadGallery(false);
+            }
+        });
+
+        // --- CẤU HÌNH FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBe82TCKrsTNrWyRopuHHgAEWDRmiWed5o",
             authDomain: "anhriengtu-98bce.firebaseapp.com",
@@ -224,7 +275,6 @@
             localStorage.setItem('myUniqueUserId', myUserId);
         }
 
-        // --- ĐIỀU KHIỂN MODAL ---
         function toggleModal(modalId) {
             closeAllModals();
             document.getElementById('modalOverlay').style.display = 'block';
@@ -237,7 +287,6 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
 
-        // --- CÀI ĐẶT NỀN & THEME ---
         const bgFileInput = document.getElementById('bgFileInput');
         bgFileInput.addEventListener('change', function() {
             const file = bgFileInput.files[0];
@@ -304,7 +353,6 @@
             }
         }
 
-        // --- UPLOAD & QUẢN LÝ ẢNH (FIRESTORE & CLOUDINARY) ---
         const fileInput = document.getElementById('fileInput');
         const memoryName = document.getElementById('memoryName');
 
@@ -339,20 +387,33 @@
             }
         });
 
+        // Hàm tải thư viện ảnh (đã sửa lỗi truy vấn để không bị mất ảnh khi load lại)
         function loadGallery(shouldScroll = false) {
             const gallery = document.getElementById('galleryContainer');
             gallery.style.display = 'grid';
             gallery.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #94a3b8;">Đang đồng bộ kho lưu trữ...</p>';
 
-            db.collection('memories').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+            db.collection('memories').onSnapshot((snapshot) => {
                 gallery.innerHTML = '';
                 if (snapshot.empty) {
                     gallery.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #94a3b8;">Chưa có kỷ niệm nào...</p>';
                     return;
                 }
+
+                let items = [];
                 snapshot.forEach((doc) => {
-                    const item = doc.data();
-                    const docId = doc.id;
+                    items.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sắp xếp ảnh mới nhất lên đầu dựa vào thời gian tạo
+                items.sort((a, b) => {
+                    let timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+                    let timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+                    return timeB - timeA;
+                });
+
+                items.forEach((item) => {
+                    const docId = item.id;
                     let deleteBtn = item.uploaderId === myUserId ? `<button class="delete-btn" onclick="deleteMemory('${docId}')">Xóa ảnh</button>` : '';
 
                     gallery.innerHTML += `
@@ -368,6 +429,9 @@
                     `;
                 });
                 if (shouldScroll) gallery.scrollIntoView({ behavior: 'smooth' });
+            }, (error) => {
+                console.error("Lỗi Firestore:", error);
+                gallery.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #e11d48;">Lỗi kết nối cơ sở dữ liệu! Hãy kiểm tra lại Firebase Firestore Rules.</p>';
             });
         }
 
@@ -376,13 +440,6 @@
                 await db.collection('memories').doc(docId).delete();
             }
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedBg = localStorage.getItem('selectedBg');
-            if (savedBg) applyBackground(savedBg);
-            setTheme(localStorage.getItem('themeSetting') || 'dark');
-            loadGallery(false);
-        });
     </script>
 </body>
 </html>
