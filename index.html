@@ -287,16 +287,6 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .media-stats {
-            background: rgba(17, 24, 39, 0.85);
-            color: #94a3b8;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
 
         /* Khu vực phân chia theo tháng */
         .month-section {
@@ -459,7 +449,7 @@
             <div class="upload-actions-group">
                 <button class="camera-btn" onclick="openCamera()">📷 Chụp ảnh</button>
                 <button class="camera-btn" id="recordBtn" onclick="toggleRecording()">🎤 Ghi âm</button>
-                <label for="fileInput" class="upload-btn">Chọn hoặc kéo thả</label>
+                <label for="fileInput" class="upload-btn">Chọn ảnh hoặc kéo thả</label>
             </div>
             
             <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple>
@@ -475,16 +465,6 @@
         </div>
 
         <!-- Khung chứa gallery phân nhóm theo tháng -->
-        <div class="controls-container">
-        <!-- Thêm khung thống kê này vào -->
-        <div id="mediaStats" class="media-stats">📊 Đang tải thống kê...</div>
-    
-        <!-- Thanh lựa chọn sắp xếp sẵn có của bạn -->
-        <select id="sortSelect" class="sort-select" onchange="loadGallery(false)">
-                <option value="desc">Mới nhất</option>
-                <option value="asc">Cũ nhất</option>
-            </select>
-        </div>
         <div id="galleryContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
     </div>
 
@@ -945,115 +925,97 @@
         }
 
         // --- HIỂN THỊ GALLERY & PHÂN NHÓM THÁNG ---
-function loadGallery(shouldScroll = false) {
-    const gallery = document.getElementById('galleryContainer');
-    const sortOrder = document.getElementById('sortSelect').value;
-    const statsEl = document.getElementById('mediaStats');
-    gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Đang đồng bộ kho lưu trữ...</p>';
+        function loadGallery(shouldScroll = false) {
+            const gallery = document.getElementById('galleryContainer');
+            const sortOrder = document.getElementById('sortSelect').value;
+            gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Đang đồng bộ kho lưu trữ...</p>';
 
-    db.collection('memories').onSnapshot((snapshot) => {
-        gallery.innerHTML = '';
-        
-        // --- 1. ĐOẠN CODE ĐẾM SỐ LƯỢNG ---
-        let imageCount = 0;
-        let videoCount = 0;
-        let audioCount = 0;
-
-        snapshot.forEach((doc) => {
-            let data = doc.data();
-            if (data.type === 'video') videoCount++;
-            else if (data.type === 'audio') audioCount++;
-            else imageCount++;
-        });
-
-        if (statsEl) {
-            let statsText = `📊 Tổng: ${imageCount} ảnh`;
-            if (videoCount > 0) statsText += `, ${videoCount} video`;
-            if (audioCount > 0) statsText += `, ${audioCount} ghi âm`;
-            statsEl.textContent = statsText;
-        }
-        // ---------------------------------
-
-        if (snapshot.empty) {
-            gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Chưa có kỷ niệm nào...</p>';
-            return;
-        }
-
-        let items = [];
-        snapshot.forEach((doc) => { items.push({ id: doc.id, ...doc.data() }); });
-
-        items.sort((a, b) => {
-            let timeA = a.createdAt ? a.createdAt.toMillis() : 0;
-            let timeB = b.createdAt ? b.createdAt.toMillis() : 0;
-            return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
-        });
-
-        let grouped = {};
-        let groupKeys = [];
-
-        items.forEach((item) => {
-            let dateObj = item.createdAt ? item.createdAt.toDate() : new Date();
-            let month = dateObj.getMonth() + 1;
-            let year = dateObj.getFullYear();
-            let key = `Tháng ${month < 10 ? '0' + month : month} năm ${year}`;
-            
-            if (!grouped[key]) {
-                grouped[key] = [];
-                groupKeys.push(key);
-            }
-            grouped[key].push(item);
-        });
-
-        if (sortOrder === 'asc') groupKeys.reverse();
-
-        groupKeys.forEach((key) => {
-            const sectionDiv = document.createElement('div');
-            sectionDiv.className = 'month-section';
-            sectionDiv.innerHTML = `<div class="month-title">📅 ${key}</div>`;
-            
-            const gridDiv = document.createElement('div');
-            gridDiv.className = 'gallery-grid';
-
-            grouped[key].forEach((item) => {
-                const docId = item.id;
-                let deleteBtn = item.uploaderId === myUserId ? `<button class="delete-btn" onclick="deleteMemory('${docId}')">Xóa</button>` : '';
-
-                let mediaHtml = '';
-                if (item.type === 'video') {
-                    mediaHtml = `<div class="media-container"><video src="${item.url}" controls preload="metadata"></video></div>`;
-                } else if (item.type === 'audio') {
-                    mediaHtml = `<div class="media-container"><audio src="${item.url}" controls></audio></div>`;
-                } else {
-                    mediaHtml = `
-                        <div class="media-container">
-                            <img src="${item.url}" alt="${item.name}">
-                            <button class="zoom-icon-btn" onclick="openLightbox('${item.url}')" title="Phóng to ảnh">🔍</button>
-                        </div>`;
+            db.collection('memories').onSnapshot((snapshot) => {
+                gallery.innerHTML = '';
+                if (snapshot.empty) {
+                    gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Chưa có kỷ niệm nào...</p>';
+                    return;
                 }
 
-                gridDiv.innerHTML += `
-                    <div class="memory-item">
-                        ${mediaHtml}
-                        <p>${item.name}</p>
-                        <span>${item.date || ''}</span>
-                        <div class="action-btns">
-                            <button onclick="downloadMedia('${item.url}', '${item.name}')" class="download-btn">Tải về</button>
-                            ${deleteBtn}
-                        </div>
-                    </div>
-                `;
+                let items = [];
+                snapshot.forEach((doc) => { items.push({ id: doc.id, ...doc.data() }); });
+
+                items.sort((a, b) => {
+                    let timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+                    let timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+                    return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+                });
+
+                let grouped = {};
+                let groupKeys = [];
+
+                items.forEach((item) => {
+                    let dateObj = item.createdAt ? item.createdAt.toDate() : new Date();
+                    let month = dateObj.getMonth() + 1;
+                    let year = dateObj.getFullYear();
+                    let key = `Tháng ${month < 10 ? '0' + month : month} năm ${year}`;
+                    
+                    if (!grouped[key]) {
+                        grouped[key] = [];
+                        groupKeys.push(key);
+                    }
+                    grouped[key].push(item);
+                });
+
+                if (sortOrder === 'asc') groupKeys.reverse();
+
+                let isTransparent = (localStorage.getItem('anhriengtu_TransparentFrame') === 'true');
+
+                groupKeys.forEach((key) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'month-section';
+                    sectionDiv.innerHTML = `<div class="month-title">📅 ${key}</div>`;
+                    
+                    const gridDiv = document.createElement('div');
+                    gridDiv.className = 'gallery-grid';
+
+                    grouped[key].forEach((item) => {
+                        const docId = item.id;
+                        let deleteBtn = item.uploaderId === myUserId ? `<button class="delete-btn" onclick="deleteMemory('${docId}')">Xóa</button>` : '';
+
+                        let mediaHtml = '';
+                        if (item.type === 'video') {
+                            mediaHtml = `<div class="media-container"><video src="${item.url}" controls preload="metadata"></video></div>`;
+                        } else if (item.type === 'audio') {
+                            mediaHtml = `<div class="media-container"><audio src="${item.url}" controls></audio></div>`;
+                        } else {
+                            mediaHtml = `
+                                <div class="media-container">
+                                    <img src="${item.url}" alt="${item.name}">
+                                    <button class="zoom-icon-btn" onclick="openLightbox('${item.url}')" title="Phóng to ảnh">🔍</button>
+                                </div>`;
+                        }
+
+                        let cardClass = 'memory-item' + (isTransparent ? ' transparent-card' : '');
+
+                        gridDiv.innerHTML += `
+                            <div class="${cardClass}">
+                                ${mediaHtml}
+                                <p>${item.name}</p>
+                                <span>${item.date || ''}</span>
+                                <div class="action-btns">
+                                    <button onclick="downloadMedia('${item.url}', '${item.name}')" class="download-btn">Tải về</button>
+                                    ${deleteBtn}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    sectionDiv.appendChild(gridDiv);
+                    gallery.appendChild(sectionDiv);
+                });
+
+                if (shouldScroll) gallery.scrollIntoView({ behavior: 'smooth' });
+            }, (error) => {
+                console.error("Lỗi Firestore:", error);
+                gallery.innerHTML = '<p style="text-align: center; color: #e11d48; margin-top: 20px;">Lỗi kết nối cơ sở dữ liệu!</p>';
             });
-
-            sectionDiv.appendChild(gridDiv);
-            gallery.appendChild(sectionDiv);
-        });
-
-        if (shouldScroll) gallery.scrollIntoView({ behavior: 'smooth' });
-    }, (error) => {
-        console.error("Lỗi Firestore:", error);
-        gallery.innerHTML = '<p style="text-align: center; color: #e11d48; margin-top: 20px;">Lỗi kết nối cơ sở dữ liệu!</p>';
-    });
-}
+        }
 
         async function downloadMedia(url, filename) {
             try {
