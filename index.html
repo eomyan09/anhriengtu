@@ -214,15 +214,15 @@
             background: rgba(255, 255, 255, 0.1);
             color: #ffffff;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 18px;
+            padding: 12px 16px;
             border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
             transition: background 0.2s;
         }
         .camera-btn:hover { background: rgba(255, 255, 255, 0.2); }
@@ -231,9 +231,9 @@
             flex: 1;
             display: inline-block; background: linear-gradient(135deg, #6366f1, #a855f7); color: white;
             padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; box-sizing: border-box;
-            text-align: center;
+            text-align: center; font-size: 0.95rem;
         }
-        #fileInput, #cameraInput { display: none; }
+        #fileInput { display: none; }
         
         .manage-btn { background: transparent; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
 
@@ -321,8 +321,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
 
-        .media-container { position: relative; width: 100%; height: 180px; overflow: hidden; border-radius: 4px; }
+        .media-container { position: relative; width: 100%; height: 180px; overflow: hidden; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); }
         .memory-item img, .memory-item video { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+        .memory-item audio { width: 90%; }
         
         .zoom-icon-btn {
             position: absolute; top: 8px; right: 8px;
@@ -447,10 +448,11 @@
             
             <div class="upload-actions-group">
                 <button class="camera-btn" onclick="openCamera()">📷 Chụp ảnh</button>
+                <button class="camera-btn" id="recordBtn" onclick="toggleRecording()">🎤 Ghi âm</button>
                 <label for="fileInput" class="upload-btn">Chọn ảnh hoặc kéo thả</label>
             </div>
             
-            <input type="file" id="fileInput" accept="image/*,video/*,.heic,.heif" multiple>
+            <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple>
             <button class="manage-btn" onclick="loadGallery(true)">Quản lý kho</button>
         </div>
 
@@ -478,7 +480,7 @@
                 document.getElementById('lockScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'flex';
                 sessionStorage.setItem('anhriengtu_Unlocked', 'true');
-                applySavedBackground();
+                fetchAndApplyBackground();
                 applyTransparentFrameSetting();
                 loadGallery(false);
             } else {
@@ -494,7 +496,7 @@
             if (sessionStorage.getItem('anhriengtu_Unlocked') === 'true') {
                 document.getElementById('lockScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'flex';
-                applySavedBackground();
+                fetchAndApplyBackground();
                 applyTransparentFrameSetting();
                 setTheme(localStorage.getItem('anhriengtu_Theme') || 'dark');
                 loadGallery(false);
@@ -580,13 +582,17 @@
             });
         }
 
-        // --- QUẢN LÝ ẢNH NỀN & ĐỒNG BỘ ---
-        function applyBackground(url, isGlobal = false) {
+        // --- QUẢN LÝ NỀN ĐỒNG BỘ QUA FIREBASE ---
+        async function applyBackground(url, isGlobal = false) {
             if (url) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('${url}')`;
                 if (isGlobal) {
+                    localStorage.setItem('anhriengtu_SyncBg', 'true');
                     localStorage.setItem('anhriengtu_GlobalBg', url);
                     localStorage.removeItem('anhriengtu_SelectedBg');
+                    try {
+                        await db.collection('settings').doc('globalConfig').set({ globalBgUrl: url }, { merge: true });
+                    } catch (e) { console.error("Lỗi đồng bộ nền:", e); }
                 } else {
                     localStorage.setItem('anhriengtu_SelectedBg', url);
                     localStorage.removeItem('anhriengtu_GlobalBg');
@@ -595,26 +601,36 @@
                 document.body.style.backgroundImage = 'none';
                 localStorage.removeItem('anhriengtu_SelectedBg');
                 localStorage.removeItem('anhriengtu_GlobalBg');
+                try {
+                    await db.collection('settings').doc('globalConfig').set({ globalBgUrl: '' }, { merge: true });
+                } catch (e) {}
             }
         }
 
-        function applySavedBackground() {
-            let globalBg = localStorage.getItem('anhriengtu_GlobalBg');
+        async function fetchAndApplyBackground() {
+            let isGlobal = (localStorage.getItem('anhriengtu_SyncBg') === 'true');
+            if (isGlobal) {
+                try {
+                    const doc = await db.collection('settings').doc('globalConfig').get();
+                    if (doc.exists && doc.data().globalBgUrl) {
+                        let serverBg = doc.data().globalBgUrl;
+                        document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('${serverBg}')`;
+                        return;
+                    }
+                } catch (e) {}
+            }
             let localBg = localStorage.getItem('anhriengtu_SelectedBg');
-            if (globalBg) {
-                applyBackground(globalBg, true);
-            } else if (localBg) {
-                applyBackground(localBg, false);
+            if (localBg) {
+                document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('${localBg}')`;
             }
         }
 
         function toggleSyncBg(checkbox) {
             if (checkbox.checked) {
                 localStorage.setItem('anhriengtu_SyncBg', 'true');
-                let current = localStorage.getItem('anhriengtu_SelectedBg');
+                let current = localStorage.getItem('anhriengtu_SelectedBg') || localStorage.getItem('anhriengtu_GlobalBg');
                 if (current) {
-                    localStorage.setItem('anhriengtu_GlobalBg', current);
-                    localStorage.removeItem('anhriengtu_SelectedBg');
+                    applyBackground(current, true);
                 }
             } else {
                 localStorage.setItem('anhriengtu_SyncBg', 'false');
@@ -627,8 +643,7 @@
         }
 
         function resetBackground() { 
-            applyBackground(null); 
-            localStorage.removeItem('anhriengtu_GlobalBg');
+            applyBackground(null, localStorage.getItem('anhriengtu_SyncBg') === 'true'); 
         }
 
         const bgFileInput = document.getElementById('bgFileInput');
@@ -738,10 +753,49 @@
 
             canvas.toBlob(async (blob) => {
                 if (!blob) return;
-                const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
                 closeCamera();
                 await handleFiles([file]);
             }, 'image/jpeg', 0.9);
+        }
+
+        // --- GHI ÂM TRỰC TIẾP ---
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioFile = new File([audioBlob], `ghi_am_${Date.now()}.webm`, { type: 'audio/webm', lastModified: Date.now() });
+                        await handleFiles([audioFile]);
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.style.background = '#e11d48';
+                    recordBtn.textContent = '⏹️ Dừng ghi';
+                } catch (err) {
+                    alert('Không thể truy cập Microphone!');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.style.background = '';
+                recordBtn.textContent = '🎤 Ghi âm';
+            }
         }
 
         // --- LIGHTBOX ZOOM & PAN ---
@@ -837,20 +891,26 @@
                 formData.append('upload_preset', 'idontknow');
 
                 try {
-                    let resourceType = file.type.startsWith('video') ? 'video' : 'image';
+                    let resourceType = 'image';
+                    if (file.type.startsWith('video')) resourceType = 'video';
+                    else if (file.type.startsWith('audio') || file.name.endsWith('.webm')) resourceType = 'auto';
+
                     const response = await fetch(`https://api.cloudinary.com/v1_1/egzgqmsa/${resourceType}/upload`, {
                         method: 'POST', body: formData
                     });
                     const data = await response.json();
                     const photoName = files.length > 1 ? `${baseName} (${i + 1})` : baseName;
 
+                    // Lấy thời gian gốc trên thiết bị (lastModified)
+                    const fileDate = file.lastModified ? new Date(file.lastModified) : new Date();
+
                     await db.collection('memories').add({
                         name: photoName, 
                         url: data.secure_url,
-                        type: resourceType,
-                        date: new Date().toLocaleDateString('vi-VN'),
+                        type: file.type.startsWith('video') ? 'video' : (file.type.startsWith('audio') || file.name.endsWith('.webm') ? 'audio' : 'image'),
+                        date: fileDate.toLocaleDateString('vi-VN'),
                         uploaderId: myUserId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: firebase.firestore.Timestamp.fromDate(fileDate)
                     });
                     successCount++;
                 } catch (error) {
@@ -921,6 +981,8 @@
                         let mediaHtml = '';
                         if (item.type === 'video') {
                             mediaHtml = `<div class="media-container"><video src="${item.url}" controls preload="metadata"></video></div>`;
+                        } else if (item.type === 'audio') {
+                            mediaHtml = `<div class="media-container"><audio src="${item.url}" controls></audio></div>`;
                         } else {
                             mediaHtml = `
                                 <div class="media-container">
