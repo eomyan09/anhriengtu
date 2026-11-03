@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍀 KHO LƯU TRỮ GIA ĐÌNH 🍀</title>
+    <title>🌙 THƯ VIỆN 🌙</title>
     
     <!-- Nhúng Firebase SDK qua CDN -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -26,6 +26,57 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Khung màn hình khóa mật khẩu */
+        #lockScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0b0f19;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .lock-box {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .lock-box h2 { margin-bottom: 15px; font-size: 1.5rem; }
+        
+        .lock-input {
+            width: 100%; padding: 12px 15px; margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px; color: #ffffff; font-size: 1rem;
+            box-sizing: border-box; outline: none; text-align: center;
+        }
+
+        .lock-btn {
+            background: linear-gradient(135deg, #6366f1, #a855f7); color: white;
+            border: none; padding: 12px 20px; border-radius: 25px;
+            cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem;
+        }
+
+        .error-msg { color: #e11d48; font-size: 0.85rem; margin-top: 10px; display: none; }
+
+        /* Giao diện chính */
+        #mainContent {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* Nút Cài đặt tròn (Top: 15px) */
@@ -133,20 +184,16 @@
         .header h1 { font-size: 2rem; margin-bottom: 5px; }
         .header p { color: #94a3b8; font-size: 0.95rem; }
 
-        /* Khung tải file đã được mở rộng */
         .card {
-            background: rgba(17, 24, 39, 0.15); 
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(5px); 
-            padding: 40px; 
-            border-radius: 20px; 
-            width: 95%; 
-            max-width: 950px;
-            text-align: center; 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
-            margin-bottom: 20px; 
-            box-sizing: border-box;
+            background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px); padding: 40px; border-radius: 20px; width: 90%; max-width: 550px;
+            text-align: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); margin-bottom: 20px; box-sizing: border-box;
             transition: all 0.2s ease;
+        }
+        .card.transparent-frame {
+            background: rgba(17, 24, 39, 0.15) !important;
+            backdrop-filter: blur(5px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
         .card.dragover {
             border: 2px dashed #6366f1;
@@ -220,24 +267,13 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3001;
         }
 
-        /* Thanh điều khiển hiển thị (Chứa thống kê và nút sắp xếp) */
+        /* Thanh điều khiển hiển thị */
         .controls-container {
             width: 90%;
             max-width: 900px;
             display: flex;
             justify-content: flex-end;
-            align-items: center;
             margin-bottom: 15px;
-        }
-        .media-stats {
-            background: rgba(17, 24, 39, 0.85);
-            color: #94a3b8;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .sort-select {
             background: rgba(17, 24, 39, 0.85);
@@ -247,6 +283,16 @@
             border-radius: 20px;
             outline: none;
             cursor: pointer;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .media-stats {
+            background: rgba(17, 24, 39, 0.85);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
             font-size: 0.9rem;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -267,80 +313,73 @@
             margin-bottom: 15px;
         }
 
-        /* Giữ nguyên kích thước khung ảnh ban đầu */
         .gallery-grid {
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
             gap: 25px; 
             width: 100%;
         }
 
         .memory-item {
-            background: rgba(26, 26, 26, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            text-align: center;
-            position: relative;
-            backdrop-filter: blur(8px);
-            transition: background 0.3s, transform 0.2s;
+            background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; padding: 12px 12px 15px 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); text-align: center; position: relative;
+            transition: background 0.3s, border 0.3s;
         }
-        .memory-item:hover {
-            transform: translateY(-2px);
+        .memory-item.transparent-card {
+            background: rgba(26, 26, 26, 0.2) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
 
-        .media-container { 
-            position: relative; 
-            width: 100%; 
-            height: 140px; 
-            overflow: hidden; 
-            border-radius: 10px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            background: rgba(0,0,0,0.3); 
-        }
-        .memory-item img, .memory-item video { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            border-radius: 10px; 
-        }
+        .media-container { position: relative; width: 100%; height: 180px; overflow: hidden; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); }
+        .memory-item img, .memory-item video { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
         .memory-item audio { width: 90%; }
         
         .zoom-icon-btn {
-            position: absolute; top: 6px; right: 6px;
+            position: absolute; top: 8px; right: 8px;
             background: rgba(0, 0, 0, 0.6); color: #fff; border: none;
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
             backdrop-filter: blur(4px); transition: transform 0.2s; z-index: 10;
         }
         .zoom-icon-btn:hover { transform: scale(1.1); background: rgba(99, 102, 241, 0.8); }
 
-        .memory-item p { font-size: 0.85rem; font-weight: 600; margin-top: 8px; color: #ffffff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .memory-item span { font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 2px; }
-        .action-btns { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
-        .delete-btn { background-color: #e11d48; color: white; border: none; padding: 5px 10px; font-size: 0.7rem; border-radius: 15px; cursor: pointer; }
-        .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 5px 10px; font-size: 0.7rem; border-radius: 15px; display: inline-block; }
+        .memory-item p { font-size: 0.95rem; font-weight: 600; margin-top: 10px; color: #ffffff; margin-bottom: 4px; }
+        .memory-item span { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px; }
+        .action-btns { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+        .delete-btn { background-color: #e11d48; color: white; border: none; padding: 6px 12px; font-size: 0.75rem; border-radius: 20px; cursor: pointer; }
+        .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 6px 12px; font-size: 0.75rem; border-radius: 20px; display: inline-block; }
 
         /* Light Mode Styling */
         body.light-mode { background-color: #f8fafc; color: #0f172a; }
-        body.light-mode .card { background: rgba(255, 255, 255, 0.2); border-color: rgba(0, 0, 0, 0.08); }
+        body.light-mode .card { background: rgba(255, 255, 255, 0.85); border-color: rgba(0, 0, 0, 0.1); }
+        body.light-mode .card.transparent-frame { background: rgba(255, 255, 255, 0.2) !important; border-color: rgba(0, 0, 0, 0.08) !important; }
         body.light-mode .card h2, body.light-mode .header h1 { color: #0f172a; }
         body.light-mode .header p { color: #475569; }
         body.light-mode .input-field { background: rgba(0, 0, 0, 0.04); color: #0f172a; border-color: rgba(0, 0, 0, 0.12); }
-        body.light-mode .memory-item { background: rgba(255, 255, 255, 0.3); border-color: rgba(0,0,0,0.08); }
+        body.light-mode .memory-item { background: #ffffff; border-color: rgba(0, 0, 0, 0.1); }
+        body.light-mode .memory-item.transparent-card { background: rgba(255, 255, 255, 0.3) !important; border-color: rgba(0,0,0,0.08) !important; }
         body.light-mode .memory-item p { color: #0f172a; }
         body.light-mode .custom-modal { background: rgba(255, 255, 255, 0.95); color: #0f172a; border-color: rgba(0,0,0,0.15); }
         body.light-mode .custom-modal h3, body.light-mode .settings-section h4 { color: #475569; }
         body.light-mode .settings-toggle-btn { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.15); color: #475569; }
-        body.light-mode .media-stats, body.light-mode .sort-select { background: rgba(255, 255, 255, 0.9); color: #0f172a; border-color: rgba(0, 0, 0, 0.15); }
+        body.light-mode .sort-select { background: rgba(255, 255, 255, 0.9); color: #0f172a; border-color: rgba(0, 0, 0, 0.15); }
         body.light-mode .month-title { color: #475569; border-color: rgba(0, 0, 0, 0.1); }
         body.light-mode .camera-btn { background: rgba(0, 0, 0, 0.05); color: #0f172a; border-color: rgba(0, 0, 0, 0.2); }
     </style>
 </head>
 <body>
+
+    <!-- MÀN HÌNH KHÓA MẬT KHẨU -->
+    <div id="lockScreen">
+        <div class="lock-box">
+            <h2>🔒 KHO BẢO MẬT</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">Vui lòng nhập mật khẩu để tiếp tục</p>
+            <input type="password" id="passInput" class="lock-input" placeholder="Nhập mật khẩu...">
+            <button class="lock-btn" onclick="checkPassword()">Mở khóa</button>
+            <div id="errorMsg" class="error-msg">❌ Mật khẩu không chính xác!</div>
+        </div>
+    </div>
 
     <!-- MODAL MỞ CAMERA TRỰC TIẾP -->
     <div id="cameraModal">
@@ -383,6 +422,12 @@
                 <div style="font-size:0.8rem; color:#94a3b8; margin-top:10px; margin-bottom:6px;">Ảnh nền bạn đã tải:</div>
                 <div id="bgThumbnails" class="bg-thumbnails"></div>
 
+                <!-- Tùy chọn khung trong suốt -->
+                <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+                    <input type="checkbox" id="transparentFrameCheck" onchange="toggleTransparentFrame(this)">
+                    <label for="transparentFrameCheck">Hiển thị khung thẻ trong suốt</label>
+                </div>
+
                 <!-- Tùy chọn đồng bộ nền -->
                 <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
                     <input type="checkbox" id="syncBgCheck" onchange="toggleSyncBg(this)">
@@ -391,17 +436,8 @@
 
                 <button class="reset-bg-btn" onclick="resetBackground()">Khôi phục nền mặc định</button>
             </div>
-
             <div class="settings-section">
-                <h4>2. Kiểu khung tải ảnh</h4>
-                <div class="theme-options">
-                    <button class="theme-btn" id="cardStyleGlass" onclick="setCardStyle('glass')">✨ Trong suốt</button>
-                    <button class="theme-btn" id="cardStyleSolid" onclick="setCardStyle('solid')">📦 Mặc định</button>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h4>3. Chế độ hiển thị</h4>
+                <h4>2. Chế độ hiển thị</h4>
                 <div class="theme-options">
                     <button class="theme-btn" onclick="setTheme('light')">☀️ Sáng</button>
                     <button class="theme-btn" onclick="setTheme('dark')">🌙 Tối</button>
@@ -411,8 +447,8 @@
         </div>
 
         <div class="header">
-            <h1>🍀 KHO LƯU TRỮ GIA ĐÌNH 🍀</h1>
-            <p>Lưu trữ những tấm ảnh gia đình</p>
+            <h1>🌙 THƯ VIỆN 🌙</h1>
+            <p>Những tấm ảnh riêng tư :))</p>
         </div>
 
         <!-- Khung thêm kỷ niệm -->
@@ -430,9 +466,8 @@
             <button class="manage-btn" onclick="loadGallery(true)">Quản lý kho</button>
         </div>
 
-        <!-- Thanh điều khiển: Hiển thị Thống kê bên trái & Sắp xếp bên phải -->
+        <!-- Thanh lựa chọn Mới nhất / Cũ nhất -->
         <div class="controls-container">
-            <div id="mediaStats" class="media-stats">📊 Đang tải thống kê...</div>
             <select id="sortSelect" class="sort-select" onchange="loadGallery(false)">
                 <option value="desc">Mới nhất</option>
                 <option value="asc">Cũ nhất</option>
@@ -440,26 +475,70 @@
         </div>
 
         <!-- Khung chứa gallery phân nhóm theo tháng -->
+        <div class="controls-container">
+        <!-- Thêm khung thống kê này vào -->
+        <div id="mediaStats" class="media-stats">📊 Đang tải thống kê...</div>
+    
+        <!-- Thanh lựa chọn sắp xếp sẵn có của bạn -->
+        <select id="sortSelect" class="sort-select" onchange="loadGallery(false)">
+                <option value="desc">Mới nhất</option>
+                <option value="asc">Cũ nhất</option>
+            </select>
+        </div>
         <div id="galleryContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
     </div>
 
     <script>
-        // --- CẤU HÌNH FIREBASE MỚI ---
+        // --- MẬT KHẨU BẢO VỆ ---
+        const MY_PASSWORD = "2009";
+
+        function checkPassword() {
+            const inputVal = document.getElementById('passInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (inputVal === MY_PASSWORD) {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+                sessionStorage.setItem('anhriengtu_Unlocked', 'true');
+                fetchAndApplyBackground();
+                applyTransparentFrameSetting();
+                loadGallery(false);
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        document.getElementById('passInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('anhriengtu_Unlocked') === 'true') {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+                fetchAndApplyBackground();
+                applyTransparentFrameSetting();
+                setTheme(localStorage.getItem('anhriengtu_Theme') || 'dark');
+                loadGallery(false);
+            }
+        });
+
+        // --- CẤU HÌNH FIREBASE ---
         const firebaseConfig = {
-            apiKey: "AIzaSyAt2pPOUPeCJEYWh-6DkuDmDAa_jqT7UCU",
-            authDomain: "kholuuanhgiadinh-937e9.firebaseapp.com",
-            projectId: "kholuuanhgiadinh-937e9",
-            storageBucket: "kholuuanhgiadinh-937e9.firebasestorage.app",
-            messagingSenderId: "404460728219",
-            appId: "1:404460728219:web:0c1038b1aa5b295212bb3e"
+            apiKey: "AIzaSyBe82TCKrsTNrWyRopuHHgAEWDRmiWed5o",
+            authDomain: "anhriengtu-98bce.firebaseapp.com",
+            projectId: "anhriengtu-98bce",
+            storageBucket: "anhriengtu-98bce.firebasestorage.app",
+            messagingSenderId: "293881146251",
+            appId: "1:293881146251:web:62306e755b25d0aaa45d8e"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let myUserId = localStorage.getItem('kholuuanhgiadinh_UserId');
+        let myUserId = localStorage.getItem('anhriengtu_UserId');
         if (!myUserId) {
             myUserId = 'user_' + Math.random().toString(36).substring(2, 15);
-            localStorage.setItem('kholuuanhgiadinh_UserId', myUserId);
+            localStorage.setItem('anhriengtu_UserId', myUserId);
         }
 
         // --- 15 MẪU ẢNH NỀN CÓ SẴN ---
@@ -489,7 +568,8 @@
             if(modalId === 'settingsModal') {
                 renderBgThumbnails();
                 renderPresetThumbnails();
-                document.getElementById('syncBgCheck').checked = (localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true');
+                document.getElementById('syncBgCheck').checked = (localStorage.getItem('anhriengtu_SyncBg') === 'true');
+                document.getElementById('transparentFrameCheck').checked = (localStorage.getItem('anhriengtu_TransparentFrame') === 'true');
             }
         }
 
@@ -498,34 +578,28 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
 
-        // --- QUẢN LÝ KIỂU KHUNG TẢI ẢNH (TRONG SUỐT / MẶC ĐỊNH) ---
-        function setCardStyle(style) {
-            localStorage.setItem('kholuuanhgiadinh_CardStyle', style);
-            applyCardStyle(style);
+        // --- TÙY CHỌN KHUNG TRONG SUỐT ---
+        function toggleTransparentFrame(checkbox) {
+            if (checkbox.checked) {
+                localStorage.setItem('anhriengtu_TransparentFrame', 'true');
+            } else {
+                localStorage.setItem('anhriengtu_TransparentFrame', 'false');
+            }
+            applyTransparentFrameSetting();
         }
 
-        function applyCardStyle(style) {
+        function applyTransparentFrameSetting() {
+            const isTransparent = (localStorage.getItem('anhriengtu_TransparentFrame') === 'true');
             const card = document.getElementById('dropZone');
-            const glassBtn = document.getElementById('cardStyleGlass');
-            const solidBtn = document.getElementById('cardStyleSolid');
-            if (!card) return;
-            if (style === 'solid') {
-                card.style.background = 'rgba(17, 24, 39, 0.85)';
-                card.style.backdropFilter = 'blur(20px)';
-                card.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-                if (glassBtn && solidBtn) {
-                    glassBtn.classList.remove('active');
-                    solidBtn.classList.add('active');
-                }
+            if (isTransparent) {
+                card.classList.add('transparent-frame');
             } else {
-                card.style.background = 'rgba(17, 24, 39, 0.15)';
-                card.style.backdropFilter = 'blur(5px)';
-                card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-                if (glassBtn && solidBtn) {
-                    glassBtn.classList.add('active');
-                    solidBtn.classList.remove('active');
-                }
+                card.classList.remove('transparent-frame');
             }
+            document.querySelectorAll('.memory-item').forEach(item => {
+                if (isTransparent) item.classList.add('transparent-card');
+                else item.classList.remove('transparent-card');
+            });
         }
 
         // --- QUẢN LÝ NỀN ĐỒNG BỘ QUA FIREBASE ---
@@ -533,20 +607,20 @@
             if (url) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('${url}')`;
                 if (isGlobal) {
-                    localStorage.setItem('kholuuanhgiadinh_SyncBg', 'true');
-                    localStorage.setItem('kholuuanhgiadinh_GlobalBg', url);
-                    localStorage.removeItem('kholuuanhgiadinh_SelectedBg');
+                    localStorage.setItem('anhriengtu_SyncBg', 'true');
+                    localStorage.setItem('anhriengtu_GlobalBg', url);
+                    localStorage.removeItem('anhriengtu_SelectedBg');
                     try {
                         await db.collection('settings').doc('globalConfig').set({ globalBgUrl: url }, { merge: true });
                     } catch (e) { console.error("Lỗi đồng bộ nền:", e); }
                 } else {
-                    localStorage.setItem('kholuuanhgiadinh_SelectedBg', url);
-                    localStorage.removeItem('kholuuanhgiadinh_GlobalBg');
+                    localStorage.setItem('anhriengtu_SelectedBg', url);
+                    localStorage.removeItem('anhriengtu_GlobalBg');
                 }
             } else {
                 document.body.style.backgroundImage = 'none';
-                localStorage.removeItem('kholuuanhgiadinh_SelectedBg');
-                localStorage.removeItem('kholuuanhgiadinh_GlobalBg');
+                localStorage.removeItem('anhriengtu_SelectedBg');
+                localStorage.removeItem('anhriengtu_GlobalBg');
                 try {
                     await db.collection('settings').doc('globalConfig').set({ globalBgUrl: '' }, { merge: true });
                 } catch (e) {}
@@ -554,7 +628,7 @@
         }
 
         async function fetchAndApplyBackground() {
-            let isGlobal = (localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true');
+            let isGlobal = (localStorage.getItem('anhriengtu_SyncBg') === 'true');
             if (isGlobal) {
                 try {
                     const doc = await db.collection('settings').doc('globalConfig').get();
@@ -565,7 +639,7 @@
                     }
                 } catch (e) {}
             }
-            let localBg = localStorage.getItem('kholuuanhgiadinh_SelectedBg');
+            let localBg = localStorage.getItem('anhriengtu_SelectedBg');
             if (localBg) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('${localBg}')`;
             }
@@ -573,23 +647,23 @@
 
         function toggleSyncBg(checkbox) {
             if (checkbox.checked) {
-                localStorage.setItem('kholuuanhgiadinh_SyncBg', 'true');
-                let current = localStorage.getItem('kholuuanhgiadinh_SelectedBg') || localStorage.getItem('kholuuanhgiadinh_GlobalBg');
+                localStorage.setItem('anhriengtu_SyncBg', 'true');
+                let current = localStorage.getItem('anhriengtu_SelectedBg') || localStorage.getItem('anhriengtu_GlobalBg');
                 if (current) {
                     applyBackground(current, true);
                 }
             } else {
-                localStorage.setItem('kholuuanhgiadinh_SyncBg', 'false');
-                let global = localStorage.getItem('kholuuanhgiadinh_GlobalBg');
+                localStorage.setItem('anhriengtu_SyncBg', 'false');
+                let global = localStorage.getItem('anhriengtu_GlobalBg');
                 if (global) {
-                    localStorage.setItem('kholuuanhgiadinh_SelectedBg', global);
-                    localStorage.removeItem('kholuuanhgiadinh_GlobalBg');
+                    localStorage.setItem('anhriengtu_SelectedBg', global);
+                    localStorage.removeItem('anhriengtu_GlobalBg');
                 }
             }
         }
 
         function resetBackground() { 
-            applyBackground(null, localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true'); 
+            applyBackground(null, localStorage.getItem('anhriengtu_SyncBg') === 'true'); 
         }
 
         const bgFileInput = document.getElementById('bgFileInput');
@@ -599,13 +673,13 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Url = e.target.result;
-                let bgList = JSON.parse(localStorage.getItem('kholuuanhgiadinh_Backgrounds')) || [];
+                let bgList = JSON.parse(localStorage.getItem('anhriengtu_Backgrounds')) || [];
                 if (!bgList.includes(base64Url)) {
                     bgList.unshift(base64Url);
                     if (bgList.length > 10) bgList.pop();
-                    localStorage.setItem('kholuuanhgiadinh_Backgrounds', JSON.stringify(bgList));
+                    localStorage.setItem('anhriengtu_Backgrounds', JSON.stringify(bgList));
                 }
-                let isGlobal = (localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true');
+                let isGlobal = (localStorage.getItem('anhriengtu_SyncBg') === 'true');
                 applyBackground(base64Url, isGlobal);
                 renderBgThumbnails();
                 bgFileInput.value = '';
@@ -616,8 +690,8 @@
         function renderBgThumbnails() {
             const container = document.getElementById('bgThumbnails');
             if (!container) return;
-            let bgList = JSON.parse(localStorage.getItem('kholuuanhgiadinh_Backgrounds')) || [];
-            let currentBg = localStorage.getItem('kholuuanhgiadinh_SelectedBg') || localStorage.getItem('kholuuanhgiadinh_GlobalBg');
+            let bgList = JSON.parse(localStorage.getItem('anhriengtu_Backgrounds')) || [];
+            let currentBg = localStorage.getItem('anhriengtu_SelectedBg') || localStorage.getItem('anhriengtu_GlobalBg');
             if (bgList.length === 0) {
                 container.innerHTML = '<span style="font-size:0.75rem; color:#94a3b8;">Chưa tải ảnh nền riêng</span>';
                 return;
@@ -627,7 +701,7 @@
                 const img = document.createElement('img');
                 img.src = url;
                 img.className = 'bg-thumb' + (url === currentBg ? ' active' : '');
-                let isGlobal = (localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true');
+                let isGlobal = (localStorage.getItem('anhriengtu_SyncBg') === 'true');
                 img.onclick = () => applyBackground(url, isGlobal);
                 container.appendChild(img);
             });
@@ -636,20 +710,20 @@
         function renderPresetThumbnails() {
             const container = document.getElementById('presetBgThumbnails');
             if (!container) return;
-            let currentBg = localStorage.getItem('kholuuanhgiadinh_SelectedBg') || localStorage.getItem('kholuuanhgiadinh_GlobalBg');
+            let currentBg = localStorage.getItem('anhriengtu_SelectedBg') || localStorage.getItem('anhriengtu_GlobalBg');
             container.innerHTML = '';
             presetBackgrounds.forEach(url => {
                 const img = document.createElement('img');
                 img.src = url;
                 img.className = 'bg-thumb' + (url === currentBg ? ' active' : '');
-                let isGlobal = (localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true');
+                let isGlobal = (localStorage.getItem('anhriengtu_SyncBg') === 'true');
                 img.onclick = () => applyBackground(url, isGlobal);
                 container.appendChild(img);
             });
         }
 
         function setTheme(mode) {
-            localStorage.setItem('kholuuanhgiadinh_Theme', mode);
+            localStorage.setItem('anhriengtu_Theme', mode);
             applyTheme(mode);
         }
 
@@ -825,7 +899,7 @@
         });
 
         async function handleFiles(files) {
-            const baseName = memoryName.value.trim() || "Kỷ niệm gia đình";
+            const baseName = memoryName.value.trim() || "Kỷ niệm";
             let successCount = 0;
 
             alert(`Đang chuẩn bị tải lên ${files.length} file...`);
@@ -847,6 +921,7 @@
                     const data = await response.json();
                     const photoName = files.length > 1 ? `${baseName} (${i + 1})` : baseName;
 
+                    // Lấy thời gian gốc trên thiết bị (lastModified)
                     const fileDate = file.lastModified ? new Date(file.lastModified) : new Date();
 
                     await db.collection('memories').add({
@@ -869,116 +944,116 @@
             loadGallery(true);
         }
 
-        // --- HIỂN THỊ GALLERY, THỐNG KÊ & PHÂN NHÓM THÁNG ---
-        function loadGallery(shouldScroll = false) {
-            const gallery = document.getElementById('galleryContainer');
-            const sortOrder = document.getElementById('sortSelect').value;
-            const statsEl = document.getElementById('mediaStats');
-            
-            gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Đang đồng bộ kho lưu trữ...</p>';
+        // --- HIỂN THỊ GALLERY & PHÂN NHÓM THÁNG ---
+function loadGallery(shouldScroll = false) {
+    const gallery = document.getElementById('galleryContainer');
+    const sortOrder = document.getElementById('sortSelect').value;
+    const statsEl = document.getElementById('mediaStats');
+    gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Đang đồng bộ kho lưu trữ...</p>';
 
-            db.collection('memories').onSnapshot((snapshot) => {
-                gallery.innerHTML = '';
-                
-                let imageCount = 0;
-                let videoCount = 0;
-                let audioCount = 0;
-                let items = [];
+    db.collection('memories').onSnapshot((snapshot) => {
+        gallery.innerHTML = '';
+        
+        // --- 1. ĐOẠN CODE ĐẾM SỐ LƯỢNG ---
+        let imageCount = 0;
+        let videoCount = 0;
+        let audioCount = 0;
 
-                snapshot.forEach((doc) => { 
-                    let data = doc.data();
-                    items.push({ id: doc.id, ...data }); 
-                    
-                    if (data.type === 'video') videoCount++;
-                    else if (data.type === 'audio') audioCount++;
-                    else imageCount++;
-                });
+        snapshot.forEach((doc) => {
+            let data = doc.data();
+            if (data.type === 'video') videoCount++;
+            else if (data.type === 'audio') audioCount++;
+            else imageCount++;
+        });
 
-                // Cập nhật hiển thị tổng số lượng lên giao diện
-                if (statsEl) {
-                    let statsText = `📊 Tổng: ${imageCount} ảnh`;
-                    if (videoCount > 0) statsText += `, ${videoCount} video`;
-                    if (audioCount > 0) statsText += `, ${audioCount} ghi âm`;
-                    statsEl.textContent = statsText;
-                }
-
-                if (snapshot.empty) {
-                    gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Chưa có kỷ niệm nào...</p>';
-                    return;
-                }
-
-                items.sort((a, b) => {
-                    let timeA = a.createdAt ? a.createdAt.toMillis() : 0;
-                    let timeB = b.createdAt ? b.createdAt.toMillis() : 0;
-                    return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
-                });
-
-                let grouped = {};
-                let groupKeys = [];
-
-                items.forEach((item) => {
-                    let dateObj = item.createdAt ? item.createdAt.toDate() : new Date();
-                    let month = dateObj.getMonth() + 1;
-                    let year = dateObj.getFullYear();
-                    let key = `Tháng ${month < 10 ? '0' + month : month} năm ${year}`;
-                    
-                    if (!grouped[key]) {
-                        grouped[key] = [];
-                        groupKeys.push(key);
-                    }
-                    grouped[key].push(item);
-                });
-
-                if (sortOrder === 'asc') groupKeys.reverse();
-
-                groupKeys.forEach((key) => {
-                    const sectionDiv = document.createElement('div');
-                    sectionDiv.className = 'month-section';
-                    sectionDiv.innerHTML = `<div class="month-title">📅 ${key}</div>`;
-                    
-                    const gridDiv = document.createElement('div');
-                    gridDiv.className = 'gallery-grid';
-
-                    grouped[key].forEach((item) => {
-                        const docId = item.id;
-                        let deleteBtn = item.uploaderId === myUserId ? `<button class="delete-btn" onclick="deleteMemory('${docId}')">Xóa</button>` : '';
-
-                        let mediaHtml = '';
-                        if (item.type === 'video') {
-                            mediaHtml = `<div class="media-container"><video src="${item.url}" controls preload="metadata"></video></div>`;
-                        } else if (item.type === 'audio') {
-                            mediaHtml = `<div class="media-container"><audio src="${item.url}" controls></audio></div>`;
-                        } else {
-                            mediaHtml = `
-                                <div class="media-container">
-                                    <img src="${item.url}" alt="${item.name}">
-                                    <button class="zoom-icon-btn" onclick="openLightbox('${item.url}')" title="Phóng to ảnh">🔍</button>
-                                </div>`;
-                        }
-
-                        gridDiv.innerHTML += `
-                            <div class="memory-item">
-                                ${mediaHtml}
-                                <p>${item.name}</p>
-                                <span>${item.date || ''}</span>
-                                <div class="action-btns">
-                                    <button onclick="downloadMedia('${item.url}', '${item.name}')" class="download-btn">Tải về</button>
-                                    ${deleteBtn}
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    sectionDiv.appendChild(gridDiv);
-                    gallery.appendChild(sectionDiv);
-                });
-
-                if (shouldScroll) gallery.scrollIntoView({ behavior: 'smooth' });
-            }, (error) => {
-                console.error("Lỗi Firestore:", error);
-                gallery.innerHTML = '<p style="text-align: center; color: #e11d48; margin-top: 20px;">Lỗi kết nối cơ sở dữ liệu!</p>';
-            });
+        if (statsEl) {
+            let statsText = `📊 Tổng: ${imageCount} ảnh`;
+            if (videoCount > 0) statsText += `, ${videoCount} video`;
+            if (audioCount > 0) statsText += `, ${audioCount} ghi âm`;
+            statsEl.textContent = statsText;
         }
+        // ---------------------------------
+
+        if (snapshot.empty) {
+            gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Chưa có kỷ niệm nào...</p>';
+            return;
+        }
+
+        let items = [];
+        snapshot.forEach((doc) => { items.push({ id: doc.id, ...doc.data() }); });
+
+        items.sort((a, b) => {
+            let timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+            let timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+            return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+        });
+
+        let grouped = {};
+        let groupKeys = [];
+
+        items.forEach((item) => {
+            let dateObj = item.createdAt ? item.createdAt.toDate() : new Date();
+            let month = dateObj.getMonth() + 1;
+            let year = dateObj.getFullYear();
+            let key = `Tháng ${month < 10 ? '0' + month : month} năm ${year}`;
+            
+            if (!grouped[key]) {
+                grouped[key] = [];
+                groupKeys.push(key);
+            }
+            grouped[key].push(item);
+        });
+
+        if (sortOrder === 'asc') groupKeys.reverse();
+
+        groupKeys.forEach((key) => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'month-section';
+            sectionDiv.innerHTML = `<div class="month-title">📅 ${key}</div>`;
+            
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'gallery-grid';
+
+            grouped[key].forEach((item) => {
+                const docId = item.id;
+                let deleteBtn = item.uploaderId === myUserId ? `<button class="delete-btn" onclick="deleteMemory('${docId}')">Xóa</button>` : '';
+
+                let mediaHtml = '';
+                if (item.type === 'video') {
+                    mediaHtml = `<div class="media-container"><video src="${item.url}" controls preload="metadata"></video></div>`;
+                } else if (item.type === 'audio') {
+                    mediaHtml = `<div class="media-container"><audio src="${item.url}" controls></audio></div>`;
+                } else {
+                    mediaHtml = `
+                        <div class="media-container">
+                            <img src="${item.url}" alt="${item.name}">
+                            <button class="zoom-icon-btn" onclick="openLightbox('${item.url}')" title="Phóng to ảnh">🔍</button>
+                        </div>`;
+                }
+
+                gridDiv.innerHTML += `
+                    <div class="memory-item">
+                        ${mediaHtml}
+                        <p>${item.name}</p>
+                        <span>${item.date || ''}</span>
+                        <div class="action-btns">
+                            <button onclick="downloadMedia('${item.url}', '${item.name}')" class="download-btn">Tải về</button>
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                `;
+            });
+
+            sectionDiv.appendChild(gridDiv);
+            gallery.appendChild(sectionDiv);
+        });
+
+        if (shouldScroll) gallery.scrollIntoView({ behavior: 'smooth' });
+    }, (error) => {
+        console.error("Lỗi Firestore:", error);
+        gallery.innerHTML = '<p style="text-align: center; color: #e11d48; margin-top: 20px;">Lỗi kết nối cơ sở dữ liệu!</p>';
+    });
+}
 
         async function downloadMedia(url, filename) {
             try {
@@ -1002,13 +1077,6 @@
                 await db.collection('memories').doc(docId).delete();
             }
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchAndApplyBackground();
-            setTheme(localStorage.getItem('kholuuanhgiadinh_Theme') || 'dark');
-            applyCardStyle(localStorage.getItem('kholuuanhgiadinh_CardStyle') || 'glass');
-            loadGallery(false);
-        });
     </script>
 </body>
 </html>
