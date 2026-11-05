@@ -241,7 +241,7 @@
         .manage-btn { background: transparent; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
         .manage-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
 
-        /* Modal Camera (Chụp ảnh & Quay video) */
+        /* Modal Camera */
         #cameraModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -305,7 +305,7 @@
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.5);
         }
 
-        /* Lightbox Xem toàn màn hình & Xoay */
+        /* Lightbox Xem toàn màn hình & Xoay (Đã tối đa 75vw/75vh tránh tràn màn hình khi xoay) */
         #lightboxModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 3000;
@@ -318,9 +318,13 @@
             position: relative;
         }
         #lightboxImg, #lightboxVideo {
-            max-width: 90vw; max-height: 85vh;
-            object-fit: contain; transition: transform 0.1s ease;
-            cursor: grab; user-select: none; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            max-width: 75vw; 
+            max-height: 75vh;
+            object-fit: contain; 
+            transition: transform 0.15s ease;
+            cursor: grab; 
+            user-select: none; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
             border-radius: 8px;
         }
         #lightboxImg:active, #lightboxVideo:active { cursor: grabbing; }
@@ -464,7 +468,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
 
-        /* Sửa thành object-fit: contain và background đen để video không bị tràn màn hình */
+        /* Khung hiển thị media: Dùng object-fit: contain và background đen để video vừa vặn */
         .media-container { 
             position: relative; width: 100%; height: 180px; 
             overflow: hidden; border-radius: 4px; 
