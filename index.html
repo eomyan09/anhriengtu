@@ -232,10 +232,10 @@
         .upload-btn {
             flex: 1;
             display: inline-block; background: linear-gradient(135deg, #6366f1, #a855f7); color: white;
-            padding: 12px 25px; border-radius: 25px; cursor: pointer; font-weight: 600; box-sizing: border-box;
-            text-align: center; font-size: 0.95rem; min-width: 180px;
+            padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; box-sizing: border-box;
+            text-align: center; font-size: 0.9rem; min-width: 150px;
         }
-        #fileInput { display: none; }
+        #fileInput, #folderInput { display: none; }
         
         .manage-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 5px; }
         .manage-btn { background: transparent; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
@@ -627,10 +627,16 @@
             <div class="upload-actions-group">
                 <button class="camera-btn" onclick="openCamera()">📷 Camera</button>
                 <button class="camera-btn" id="recordBtn" onclick="toggleRecording()">🎤 Ghi âm</button>
-                <label for="fileInput" class="upload-btn">Chọn hoặc kéo thả</label>
+                <!-- Cho phép chọn 1 hoặc nhiều file -->
+                <label for="fileInput" class="upload-btn">📂 Chọn file</label>
+                <!-- Cho phép chọn nguyên thư mục -->
+                <label for="folderInput" class="upload-btn" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);">📁 Chọn thư mục</label>
             </div>
             
-            <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple webkitdirectory directory>
+            <!-- Input chọn file (cho phép chọn đa file với thuộc tính multiple) -->
+            <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple>
+            <!-- Input chọn thư mục riêng biệt -->
+            <input type="file" id="folderInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple webkitdirectory directory>
             
             <div class="manage-actions">
                 <button class="manage-btn" onclick="loadGallery(true)">Quản lý kho</button>
@@ -1135,6 +1141,7 @@
         });
 
         const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
         const dropZone = document.getElementById('dropZone');
         const memoryName = document.getElementById('memoryName');
 
@@ -1202,9 +1209,19 @@
             }
         }
 
+        // Lắng nghe sự kiện chọn file (hỗ trợ 1 hoặc nhiều file)
         fileInput.addEventListener('change', function() {
             if (fileInput.files.length > 0) {
                 handleFiles(Array.from(fileInput.files));
+                fileInput.value = '';
+            }
+        });
+
+        // Lắng nghe sự kiện chọn thư mục
+        folderInput.addEventListener('change', function() {
+            if (folderInput.files.length > 0) {
+                handleFiles(Array.from(folderInput.files));
+                folderInput.value = '';
             }
         });
 
@@ -1212,7 +1229,7 @@
             const baseName = memoryName.value.trim() || "Kỷ niệm";
             let successCount = 0;
 
-            alert(`Đang chuẩn bị tải lên ${files.length} file/thư mục...`);
+            alert(`Đang chuẩn bị tải lên ${files.length} file...`);
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -1252,7 +1269,6 @@
 
             alert(`Đã tải lên thành công ${successCount}/${files.length} file!`);
             memoryName.value = ''; 
-            fileInput.value = '';
             loadGallery(true);
         }
 
