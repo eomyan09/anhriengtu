@@ -28,6 +28,23 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* Hiệu ứng tràn viền toàn trang khi kéo file vào */
+        body.dragover::after {
+            content: "📂 Thả file vào đây để tải lên...";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(99, 102, 241, 0.85);
+            color: #ffffff;
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+
         /* Khung màn hình khóa mật khẩu */
         #lockScreen {
             position: fixed;
@@ -195,10 +212,6 @@
             backdrop-filter: blur(5px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
-        .card.dragover {
-            border: 2px dashed #6366f1;
-            background: rgba(99, 102, 241, 0.15);
-        }
 
         .input-field {
             width: 100%; padding: 12px 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05);
@@ -305,7 +318,7 @@
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.5);
         }
 
-        /* Lightbox Xem toàn màn hình & Xoay (Đã tối đa 75vw/75vh tránh tràn màn hình khi xoay) */
+        /* Lightbox Xem toàn màn hình & Xoay (75vw/75vh tránh tràn màn hình khi xoay) */
         #lightboxModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 3000;
@@ -620,22 +633,18 @@
         </div>
 
         <!-- Khung thêm kỷ niệm -->
-        <div class="card" id="dropZone">
+        <div class="card" id="dropZoneCard">
             <h2>✨ Thêm kỷ niệm mới ✨</h2>
             <input type="text" class="input-field" id="memoryName" placeholder="Tên chung cho các file (tùy chọn)...">
             
             <div class="upload-actions-group">
                 <button class="camera-btn" onclick="openCamera()">📷 Camera</button>
                 <button class="camera-btn" id="recordBtn" onclick="toggleRecording()">🎤 Ghi âm</button>
-                <!-- Cho phép chọn 1 hoặc nhiều file -->
                 <label for="fileInput" class="upload-btn">📂 Chọn file</label>
-                <!-- Cho phép chọn nguyên thư mục -->
                 <label for="folderInput" class="upload-btn" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);">📁 Chọn thư mục</label>
             </div>
             
-            <!-- Input chọn file (cho phép chọn đa file với thuộc tính multiple) -->
             <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple>
-            <!-- Input chọn thư mục riêng biệt -->
             <input type="file" id="folderInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple webkitdirectory directory>
             
             <div class="manage-actions">
@@ -910,7 +919,7 @@
 
         function applyTransparentFrameSetting() {
             const isTransparent = (localStorage.getItem('anhriengtu_TransparentFrame') === 'true');
-            const card = document.getElementById('dropZone');
+            const card = document.getElementById('dropZoneCard');
             if (isTransparent) card.classList.add('transparent-frame');
             else card.classList.remove('transparent-frame');
             document.querySelectorAll('.memory-item').forEach(item => {
@@ -1142,29 +1151,31 @@
 
         const fileInput = document.getElementById('fileInput');
         const folderInput = document.getElementById('folderInput');
-        const dropZone = document.getElementById('dropZone');
         const memoryName = document.getElementById('memoryName');
 
+        // Bật tính năng kéo thả toàn bộ trang web (Body)
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
+            window.addEventListener(eventName, (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                dropZone.classList.add('dragover');
+                document.body.classList.add('dragover');
             }, false);
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
+            window.addEventListener(eventName, (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                dropZone.classList.remove('dragover');
+                if (e.target === document.body || e.type === 'drop') {
+                    document.body.classList.remove('dragover');
+                }
             }, false);
         });
 
-        dropZone.addEventListener('drop', async (e) => {
+        window.addEventListener('drop', async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            dropZone.classList.remove('dragover');
+            document.body.classList.remove('dragover');
 
             const items = e.dataTransfer.items;
             let filesToProcess = [];
@@ -1209,7 +1220,6 @@
             }
         }
 
-        // Lắng nghe sự kiện chọn file (hỗ trợ 1 hoặc nhiều file)
         fileInput.addEventListener('change', function() {
             if (fileInput.files.length > 0) {
                 handleFiles(Array.from(fileInput.files));
@@ -1217,7 +1227,6 @@
             }
         });
 
-        // Lắng nghe sự kiện chọn thư mục
         folderInput.addEventListener('change', function() {
             if (folderInput.files.length > 0) {
                 handleFiles(Array.from(folderInput.files));
