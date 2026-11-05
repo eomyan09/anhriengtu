@@ -247,14 +247,14 @@
             background: rgba(0,0,0,0.85); z-index: 2000;
             display: none; flex-direction: column; align-items: center; justify-content: center;
         }
-        #cameraVideo { width: 90%; max-width: 500px; max-height: 70vh; border-radius: 15px; background: #000; margin-bottom: 15px; object-fit: cover; }
+        #cameraVideo { width: 90%; max-width: 500px; max-height: 70vh; border-radius: 15px; background: #000; margin-bottom: 15px; object-fit: contain; }
         .cam-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .capture-btn { background: #e11d48; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
         .record-cam-btn { background: #f59e0b; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
         .switch-cam-btn { background: #6366f1; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
         .close-cam-btn { background: #475569; color: white; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
 
-        /* Giao diện Lịch (theo mẫu ảnh yêu cầu) */
+        /* Giao diện Lịch */
         .calendar-dropdown {
             position: absolute;
             top: 45px;
@@ -305,10 +305,10 @@
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.5);
         }
 
-        /* Lightbox Xem toàn màn hình */
+        /* Lightbox Xem toàn màn hình & Xoay */
         #lightboxModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92); z-index: 3000;
+            background: rgba(0, 0, 0, 0.95); z-index: 3000;
             display: none; align-items: center; justify-content: center;
             overflow: hidden; touch-action: none;
         }
@@ -321,6 +321,7 @@
             max-width: 90vw; max-height: 85vh;
             object-fit: contain; transition: transform 0.1s ease;
             cursor: grab; user-select: none; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            border-radius: 8px;
         }
         #lightboxImg:active, #lightboxVideo:active { cursor: grabbing; }
         
@@ -371,7 +372,6 @@
             position: relative;
         }
 
-        /* Khung nhập tay ngày tháng DD/MM/YYYY */
         .date-input-filter {
             background: rgba(17, 24, 39, 0.85);
             color: #ffffff;
@@ -428,7 +428,7 @@
             font-size: 0.9rem;
         }
         .duplicate-item-row img, .duplicate-item-row video {
-            width: 45px; height: 45px; object-fit: cover; border-radius: 4px;
+            width: 45px; height: 45px; object-fit: contain; background: #000; border-radius: 4px;
         }
 
         /* Khu vực phân chia theo tháng */
@@ -464,8 +464,18 @@
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
 
-        .media-container { position: relative; width: 100%; height: 180px; overflow: hidden; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); }
-        .memory-item img, .memory-item video { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+        /* Sửa thành object-fit: contain và background đen để video không bị tràn màn hình */
+        .media-container { 
+            position: relative; width: 100%; height: 180px; 
+            overflow: hidden; border-radius: 4px; 
+            display: flex; align-items: center; justify-content: center; 
+            background: #000000; 
+        }
+        .memory-item img, .memory-item video { 
+            width: 100%; height: 100%; 
+            object-fit: contain; 
+            border-radius: 4px; 
+        }
         .memory-item audio { width: 90%; }
         
         .zoom-icon-btn {
@@ -516,7 +526,7 @@
         </div>
     </div>
 
-    <!-- MODAL MỞ CAMERA (CHỤP ẢNH & QUAY VIDEO) -->
+    <!-- MODAL MỞ CAMERA -->
     <div id="cameraModal">
         <video id="cameraVideo" autoplay playsinline></video>
         <div class="cam-controls">
@@ -542,7 +552,7 @@
         </div>
     </div>
 
-    <!-- MODAL XEM ẢNH/VIDEO TOÀN MÀN HÌNH -->
+    <!-- MODAL XEM ẢNH/VIDEO TOÀN MÀN HÌNH (CÓ NÚT XOAY 🔄) -->
     <div id="lightboxModal">
         <div class="lightbox-controls">
             <button class="lightbox-btn" onclick="rotateMedia()" title="Xoay 90 độ">🔄</button>
@@ -554,12 +564,10 @@
         </div>
     </div>
 
-    <!-- NỘI DUNG CHÍNH CỦA TRANG WEB -->
+    <!-- NỘI DUNG CHÍNH -->
     <div id="mainContent">
-        <!-- Nút Cài đặt tròn (Top: 15px) -->
         <button class="settings-toggle-btn" onclick="toggleModal('settingsModal')">☰</button>
 
-        <!-- Overlay chung -->
         <div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
 
         <!-- Modal Cài đặt -->
@@ -618,7 +626,6 @@
                 <label for="fileInput" class="upload-btn">Chọn hoặc kéo thả</label>
             </div>
             
-            <!-- Hỗ trợ chọn nhiều file hoặc cả thư mục (webkitdirectory) -->
             <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple webkitdirectory directory>
             
             <div class="manage-actions">
@@ -627,7 +634,7 @@
             </div>
         </div>
 
-        <!-- Thanh điều khiển: Thống kê, Nhập ngày DD/MM/YYYY, Lịch, Sắp xếp -->
+        <!-- Thanh điều khiển -->
         <div class="controls-container">
             <div class="stats-badge" id="statsBadge">
                 <span>🖼️ Ảnh: <strong id="imgCount">0</strong></span>
@@ -636,12 +643,10 @@
             </div>
 
             <div class="control-actions-right">
-                <!-- Khung nhập tay ngày tháng DD/MM/YYYY -->
                 <input type="text" id="dateInputFilter" class="date-input-filter" placeholder="DD/MM/YYYY" maxlength="10" oninput="handleManualDateInput(this)" title="Nhập ngày theo định dạng DD/MM/YYYY">
 
                 <div style="position: relative;">
                     <button class="calendar-toggle-btn" onclick="toggleCalendarDropdown()" title="Mở lịch chọn ngày">📅</button>
-                    <!-- Giao diện lịch chọn ngày -->
                     <div id="calendarDropdown" class="calendar-dropdown">
                         <div class="cal-header">
                             <button class="cal-btn" onclick="changeCalendarMonth(-1)">‹</button>
@@ -665,12 +670,10 @@
             </div>
         </div>
 
-        <!-- Khung chứa gallery phân nhóm theo tháng -->
         <div id="galleryContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
     </div>
 
     <script>
-        // --- MẬT KHẨU BẢO VỆ ---
         const MY_PASSWORD = "2009";
 
         function checkPassword() {
@@ -704,7 +707,6 @@
             }
         });
 
-        // --- CẤU HÌNH FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBe82TCKrsTNrWyRopuHHgAEWDRmiWed5o",
             authDomain: "anhriengtu-98bce.firebaseapp.com",
@@ -722,7 +724,6 @@
             localStorage.setItem('anhriengtu_UserId', myUserId);
         }
 
-        // --- 15 MẪU ẢNH NỀN CÓ SẴN ---
         const presetBackgrounds = [
             "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop",
             "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop",
@@ -741,7 +742,6 @@
             "https://images.unsplash.com/photo-1510784722466-f2aa9c52fff6?q=80&w=1000&auto=format&fit=crop"
         ];
 
-        // --- ĐIỀU KHIỂN MODAL ---
         function toggleModal(modalId) {
             closeAllModals();
             document.getElementById('modalOverlay').style.display = 'block';
@@ -761,7 +761,6 @@
             document.getElementById('calendarDropdown').style.display = 'none';
         }
 
-        // --- QUẢN LÝ NỀN ĐỒNG BỘ QUA FIREBASE ---
         async function applyBackground(url, isGlobal = false) {
             if (url) {
                 document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('${url}')`;
@@ -910,7 +909,6 @@
             });
         }
 
-        // --- CAMERA: CHỤP ẢNH & QUAY VIDEO TRỰC TIẾP ---
         let mediaStream = null;
         let currentFacingMode = 'user';
         let camMediaRecorder = null;
@@ -1022,7 +1020,6 @@
             }
         }
 
-        // --- GHI ÂM TRỰC TIẾP ---
         let mediaRecorder;
         let audioChunks = [];
         let isRecording = false;
@@ -1058,7 +1055,6 @@
             }
         }
 
-        // --- LIGHTBOX ZOOM, PAN & XOAY ---
         let scale = 1, rotation = 0, panning = false, pointX = 0, pointY = 0, startX = 0, startY = 0;
         let activeMediaEl = null;
 
@@ -1134,7 +1130,6 @@
             setTransform();
         });
 
-        // --- XỬ LÝ CHỌN FILE, THƯ MỤC & KÉO THẢ ---
         const fileInput = document.getElementById('fileInput');
         const dropZone = document.getElementById('dropZone');
         const memoryName = document.getElementById('memoryName');
@@ -1257,7 +1252,6 @@
             loadGallery(true);
         }
 
-        // --- TÌM TỆP LẶP VÀ QUẢN LÝ XÓA ---
         async function openDuplicateModal() {
             toggleModal('duplicateModal');
             const container = document.getElementById('duplicateListContainer');
@@ -1317,9 +1311,8 @@
             }
         }
 
-        // --- GIAO DIỆN LỊCH VÀ NHẬP TAY DD/MM/YYYY ---
         let currentCalDate = new Date();
-        let selectedFilterDate = null; // Định dạng 'DD/MM/YYYY'
+        let selectedFilterDate = null;
 
         function toggleCalendarDropdown() {
             const dropdown = document.getElementById('calendarDropdown');
@@ -1391,7 +1384,6 @@
 
         function handleManualDateInput(input) {
             let val = input.value.trim();
-            // Tự động thêm dấu / khi nhập
             if (val.length === 2 && !val.includes('/')) {
                 input.value = val + '/';
             } else if (val.length === 5 && val.split('/').length === 2) {
@@ -1418,7 +1410,6 @@
             loadGallery(false);
         }
 
-        // --- HIỂN THỊ GALLERY, PHÂN NHÓM THÁNG & THỐNG KÊ ---
         function loadGallery(shouldScroll = false) {
             const gallery = document.getElementById('galleryContainer');
             const sortOrder = document.getElementById('sortSelect').value;
@@ -1498,8 +1489,8 @@
                         if (item.type === 'video') {
                             mediaHtml = `
                                 <div class="media-container">
-                                    <video src="${item.url}" controls preload="metadata"></video>
-                                    <button class="zoom-icon-btn" onclick="openLightbox('${item.url}', 'video')" title="Xem toàn màn hình">🔍</button>
+                                    <video src="${item.url}" preload="metadata"></video>
+                                    <button class="zoom-icon-btn" onclick="openLightbox('${item.url}', 'video')" title="Phóng to video">🔍</button>
                                 </div>`;
                         } else if (item.type === 'audio') {
                             mediaHtml = `<div class="media-container"><audio src="${item.url}" controls></audio></div>`;
