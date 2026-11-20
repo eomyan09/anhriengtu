@@ -248,7 +248,7 @@
             padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; box-sizing: border-box;
             text-align: center; font-size: 0.9rem; min-width: 150px;
         }
-        #fileInput, #folderInput { display: none; }
+        #fileInput { display: none; }
         
         .manage-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 5px; }
         .manage-btn { background: transparent; color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
@@ -641,11 +641,9 @@
                 <button class="camera-btn" onclick="openCamera()">📷 Camera</button>
                 <button class="camera-btn" id="recordBtn" onclick="toggleRecording()">🎤 Ghi âm</button>
                 <label for="fileInput" class="upload-btn">📂 Chọn file</label>
-                <label for="folderInput" class="upload-btn" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);">📁 Chọn thư mục</label>
             </div>
             
             <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple>
-            <input type="file" id="folderInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple webkitdirectory directory>
             
             <div class="manage-actions">
                 <button class="manage-btn" onclick="loadGallery(true)">Quản lý kho</button>
@@ -1150,10 +1148,9 @@
         });
 
         const fileInput = document.getElementById('fileInput');
-        const folderInput = document.getElementById('folderInput');
         const memoryName = document.getElementById('memoryName');
 
-        // Bật tính năng kéo thả toàn bộ trang web (Body)
+        // Bật tính năng kéo thả toàn bộ trang web (Body) cho file lẻ
         ['dragenter', 'dragover'].forEach(eventName => {
             window.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -1177,60 +1174,16 @@
             e.stopPropagation();
             document.body.classList.remove('dragover');
 
-            const items = e.dataTransfer.items;
-            let filesToProcess = [];
-
-            if (items) {
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i].webkitGetAsEntry ? items[i].webkitGetAsEntry() : null;
-                    if (item) {
-                        await traverseFileTree(item, filesToProcess);
-                    } else {
-                        const f = e.dataTransfer.files[i];
-                        if (f) filesToProcess.push(f);
-                    }
-                }
-            } else {
-                filesToProcess = Array.from(e.dataTransfer.files);
-            }
-
-            if (filesToProcess.length > 0) {
-                await handleFiles(filesToProcess);
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                await handleFiles(Array.from(files));
             }
         });
-
-        async function traverseFileTree(item, fileList) {
-            if (item.isFile) {
-                await new Promise((resolve) => {
-                    item.file((file) => {
-                        fileList.push(file);
-                        resolve();
-                    });
-                });
-            } else if (item.isDirectory) {
-                const dirReader = item.createReader();
-                await new Promise((resolve) => {
-                    dirReader.readEntries(async (entries) => {
-                        for (let i = 0; i < entries.length; i++) {
-                            await traverseFileTree(entries[i], fileList);
-                        }
-                        resolve();
-                    });
-                });
-            }
-        }
 
         fileInput.addEventListener('change', function() {
             if (fileInput.files.length > 0) {
                 handleFiles(Array.from(fileInput.files));
                 fileInput.value = '';
-            }
-        });
-
-        folderInput.addEventListener('change', function() {
-            if (folderInput.files.length > 0) {
-                handleFiles(Array.from(folderInput.files));
-                folderInput.value = '';
             }
         });
 
@@ -1264,6 +1217,8 @@
 
                     await db.collection('memories').add({
                         name: photoName, 
+                        originalFileName: file.name,
+                        fileSize: file.size,
                         url: data.secure_url,
                         type: file.type.startsWith('video') || file.name.endsWith('.webm') ? 'video' : (file.type.startsWith('audio') ? 'audio' : 'image'),
                         date: fileDate.toLocaleDateString('vi-VN'),
@@ -1288,14 +1243,16 @@
 
             try {
                 const snapshot = await db.collection('memories').get();
-                let urlMap = {};
+                let duplicateMap = {};
+                
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (!urlMap[data.url]) urlMap[data.url] = [];
-                    urlMap[data.url].push({ id: doc.id, ...data });
+                    let key = `${data.originalFileName || data.name}_${data.fileSize || 0}`;
+                    if (!duplicateMap[key]) duplicateMap[key] = [];
+                    duplicateMap[key].push({ id: doc.id, ...data });
                 });
 
-                let duplicates = Object.values(urlMap).filter(group => group.length > 1);
+                let duplicates = Object.values(duplicateMap).filter(group => group.length > 1);
 
                 if (duplicates.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #10b981; padding: 20px;">✨ Tuyệt vời! Không có tệp nào bị trùng lặp trong kho.</p>';
@@ -1317,7 +1274,7 @@
                                     ${mediaPrev}
                                     <div>
                                         <strong>${item.name}</strong><br>
-                                        <span style="font-size:0.75rem; color:#94a3b8;">${item.date}</span>
+                                        <span style="font-size:0.75rem; color:#94a3b8;">${item.date} (Dung lượng: ${item.fileSize || 'N/A'} bytes)</span>
                                     </div>
                                 </div>
                                 <div>
