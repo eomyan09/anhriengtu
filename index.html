@@ -57,8 +57,7 @@
         .control-actions-right{display:flex;gap:10px;align-items:center;position:relative}
         .date-input-filter,.calendar-toggle-btn,.sort-select{background:rgba(17,24,39,.85);color:#fff;border:1px solid rgba(255,255,255,.2);padding:8px 12px;border-radius:20px;outline:none;font-size:.9rem;backdrop-filter:blur(10px)}
         .date-input-filter{width:115px;text-align:center}
-        .calendar-toggle-btn{cursor:pointer}
-        .sort-select{cursor:pointer}
+        .calendar-toggle-btn,.sort-select{cursor:pointer}
         .duplicate-item-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.05);padding:10px;border-radius:8px;margin-bottom:8px;font-size:.9rem}
         .duplicate-item-row img,.duplicate-item-row video{width:45px;height:45px;object-fit:contain;background:#000;border-radius:4px}
         .month-section{width:90%;max-width:900px;margin-bottom:30px}
@@ -113,7 +112,7 @@
         </div>
         <div class="lightbox-wrapper" id="lightboxWrapper">
             <img id="lightboxImg" style="display:none">
-            <video id="lightboxVideo" controls style="display:none"></video>
+            <video id="lightboxVideo" preload="auto" controls style="display:none"></video>
         </div>
     </div>
 
@@ -428,14 +427,14 @@
             try {
                 let snap = await db.collection('memories').get(), map = {};
                 snap.forEach(doc => { let d = doc.data(), k = `${d.originalFileName||d.name}_${d.fileSize||0}`; if(!map[k]) map[k]=[]; map[k].push({id:doc.id, ...d}); });
-                let dups = Object.values(map.filter ? Object.values(map) : []).filter(g => g.length > 1);
+                let dups = Object.values(map).filter(g => g.length > 1);
                 if (dups.length === 0) { container.innerHTML = '<p style="text-align:center;color:#10b981;padding:20px">✨ Không có tệp trùng!</p>'; return; }
                 container.innerHTML = '';
                 dups.forEach((g, idx) => {
                     let div = document.createElement('div'); div.style.marginBottom = '15px';
                     div.innerHTML = `<div style="font-size:.85rem;color:#94a3b8;margin-bottom:5px">Nhóm #${idx+1}:</div>`;
                     g.forEach((item, i) => {
-                        div.innerHTML += `<div class="duplicate-item-row"><div style="display:flex;align-items:center;gap:10px">${item.type==='video'?`<video src="${item.url}"></video>`:`<img src="${item.url}">`}<div><strong>${item.name}</strong><br><span style="font-size:.75rem;color:#94a3b8">${item.date}</span></div></div><div>${i===0?'<span style="color:#10b981;font-size:.8rem">(Gốc)</span>':`<button class="delete-btn" onclick="deleteDup('${item.id}')">Xóa</button>`}</div></div>`;
+                        div.innerHTML += `<div class="duplicate-item-row"><div style="display:flex;align-items:center;gap:10px">${item.type==='video'?`<video src="${item.url}" preload="auto" controls></video>`:`<img src="${item.url}">`}<div><strong>${item.name}</strong><br><span style="font-size:.75rem;color:#94a3b8">${item.date}</span></div></div><div>${i===0?'<span style="color:#10b981;font-size:.8rem">(Gốc)</span>':`<button class="delete-btn" onclick="deleteDup('${item.id}')">Xóa</button>`}</div></div>`;
                     });
                     container.appendChild(div);
                 });
@@ -500,7 +499,7 @@
                     sec.innerHTML = `<div class="month-title">📅 ${k}</div>`;
                     let grid = document.createElement('div'); grid.className = 'gallery-grid';
                     grouped[k].forEach(item => {
-                        let media = item.type === 'video' ? `<div class="media-container"><video src="${item.url}" preload="metadata"></video><button class="zoom-icon-btn" onclick="openLightbox('${item.url}','video')">🔍</button></div>` :
+                        let media = item.type === 'video' ? `<div class="media-container"><video src="${item.url}" preload="auto" controls></video><button class="zoom-icon-btn" onclick="openLightbox('${item.url}','video')">🔍</button></div>` :
                                       item.type === 'audio' ? `<div class="media-container"><audio src="${item.url}" controls></audio></div>` :
                                       `<div class="media-container"><img src="${item.url}" alt="${item.name}"><button class="zoom-icon-btn" onclick="openLightbox('${item.url}','image')">🔍</button></div>`;
                         grid.innerHTML += `<div class="memory-item ${isTrans?'transparent-card':''}">${media}<p>${item.name}</p><span>${item.date||''}</span><div class="action-btns"><button onclick="downloadMedia('${item.url}','${item.name}')" class="download-btn">Tải</button>${item.uploaderId===myUserId?`<button class="delete-btn" onclick="deleteMemory('${item.id}')">Xóa</button>`:''}</div></div>`;
